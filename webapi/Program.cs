@@ -24,8 +24,8 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Add EF Core with PostgreSQL via Aspire
-builder.AddNpgsqlDbContext<AppDbContext>("db");
+// Add EF Core with Azure PostgreSQL via Aspire (supports Entra ID authentication)
+builder.AddAzureNpgsqlDbContext<AppDbContext>("db");
 
 var app = builder.Build();
 

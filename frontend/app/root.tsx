@@ -15,6 +15,18 @@ import "./app.css";
 // Loader runs on server - passes OTEL config to client for browser telemetry
 // Browser needs HTTP OTLP endpoint (not gRPC)
 export function loader() {
+  // Browser telemetry only works in local development where the OTEL collector is accessible
+  // In production (Azure Container Apps), the collector is internal-only and not reachable from browsers
+  const isProduction = process.env.NODE_ENV === "production";
+  
+  if (isProduction) {
+    // Don't attempt browser telemetry in production - collector is not publicly accessible
+    return {
+      otlpEndpoint: null,
+      otlpHeaders: null,
+    };
+  }
+
   // Try HTTP-specific endpoint first, fall back to deriving from gRPC endpoint
   let httpEndpoint = process.env.OTEL_EXPORTER_OTLP_HTTP_ENDPOINT || null;
 

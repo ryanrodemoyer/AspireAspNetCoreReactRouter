@@ -101,3 +101,63 @@ The application includes end-to-end distributed tracing with OpenTelemetry:
 - **Backend**: .NET instrumentation for HTTP requests, EF Core database calls, and custom spans
 
 When running with Aspire (`dotnet apphost.cs`), traces are automatically collected and viewable in the Aspire dashboard.
+
+## Azure Deployment
+
+Deploy to Azure Container Apps using Aspire:
+
+```powershell
+aspire deploy
+```
+
+This creates:
+- **Container Apps Environment** with frontend and API containers
+- **Azure PostgreSQL Flexible Server** (PaaS) with Entra ID authentication
+- **Managed Identity** for secure database access (no passwords)
+
+### Connecting to Azure PostgreSQL from Your Machine
+
+The Azure PostgreSQL database is firewalled off from the public internet by default. To connect from your local machine:
+
+#### 1. Get Your PostgreSQL Server Name
+
+```powershell
+az postgres flexible-server list --resource-group <your-resource-group> --query "[].name" -o tsv
+```
+
+#### 2. Add a Firewall Rule for Your IP
+
+```powershell
+# Get your public IP
+(Invoke-RestMethod ifconfig.me)
+
+# Add firewall rule
+az postgres flexible-server firewall-rule create --resource-group <your-resource-group> --name <your-postgres-server-name> --rule-name AllowMyIP --start-ip-address <your-ip> --end-ip-address <your-ip>
+```
+
+#### 3. Get an Entra ID Access Token
+
+The database uses Entra ID (Azure AD) authentication instead of passwords. Get a token:
+
+```powershell
+az account get-access-token --resource-type oss-rdbms --query accessToken -o tsv
+```
+
+#### 4. Connect with psql
+
+```powershell
+psql "host=<server-name>.postgres.database.azure.com port=5432 dbname=db user=<your-azure-email> sslmode=require"
+# When prompted for password, paste the access token from step 3
+```
+
+#### 5. Remove the Firewall Rule When Done
+
+```powershell
+# List firewall rules
+az postgres flexible-server firewall-rule list --resource-group <your-resource-group> --name <your-postgres-server-name> --output table
+
+# Delete the rule
+az postgres flexible-server firewall-rule delete --resource-group <your-resource-group> --name <your-postgres-server-name> --rule-name AllowMyIP
+```
+
+> **Note**: The deployed Container Apps access the database via Azure's internal networking (VNet integration), not through the public firewall.

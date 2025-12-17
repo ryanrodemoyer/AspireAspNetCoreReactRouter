@@ -9,8 +9,11 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const apiUrl = import.meta.env.VITE_SERVICES__API__HTTPS__0 
-    || import.meta.env.VITE_SERVICES__API__HTTP__0
+  // Use process.env for server-side code (Aspire injects these at runtime)
+  const apiUrl = process.env.services__api__https__0 
+    || process.env.services__api__http__0
+    || process.env.API_HTTPS
+    || process.env.API_HTTP
     || "http://localhost:5172";
   
   const response = await fetch(`${apiUrl}/api/paintings`);
