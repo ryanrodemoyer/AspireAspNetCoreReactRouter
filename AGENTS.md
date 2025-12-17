@@ -1,5 +1,8 @@
 # AGENTS.md
 
+## Development OS
+- Windows 10/11 is used for development. All tools/commands issued should run on Windows.
+
 ## Build & Run Commands
 - **Full stack (Run):** `dotnet apphost.cs` from root (uses Aspire orchestration)
 - **Frontend only:** `npm run dev` in `frontend/`
