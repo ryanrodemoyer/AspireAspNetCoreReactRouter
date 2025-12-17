@@ -1,0 +1,46 @@
+@bobrossify_HostAddress = http://localhost:5172
+
+### Get all paintings
+GET {{bobrossify_HostAddress}}/api/paintings
+Accept: application/json
+
+### Get a specific painting by ID
+GET {{bobrossify_HostAddress}}/api/paintings/1
+Accept: application/json
+
+### Create a new painting
+POST {{bobrossify_HostAddress}}/api/paintings
+Content-Type: application/json
+
+{
+  "title": "Water Lilies",
+  "artist": "Claude Monet",
+  "year": 1906,
+  "medium": "Oil on canvas",
+  "museum": "Art Institute of Chicago",
+  "description": "A series of approximately 250 oil paintings depicting Monet's flower garden at Giverny.",
+  "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Claude_Monet_-_Water_Lilies_-_1906%2C_Ryerson.jpg/1280px-Claude_Monet_-_Water_Lilies_-_1906%2C_Ryerson.jpg"
+}
+
+### Update an existing painting
+PUT {{bobrossify_HostAddress}}/api/paintings/1
+Content-Type: application/json
+
+{
+  "title": "Mona Lisa",
+  "artist": "Leonardo da Vinci",
+  "year": 1503,
+  "medium": "Oil on poplar panel",
+  "museum": "Louvre Museum, Paris",
+  "description": "Updated description: The most famous portrait in the world, known for her enigmatic smile.",
+  "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg/800px-Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg"
+}
+
+### Delete a painting
+DELETE {{bobrossify_HostAddress}}/api/paintings/11
+
+### Get painting that doesn't exist (404 test)
+GET {{bobrossify_HostAddress}}/api/paintings/999
+Accept: application/json
+
+###
