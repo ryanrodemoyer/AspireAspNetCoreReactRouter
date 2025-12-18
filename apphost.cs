@@ -7,12 +7,7 @@
 #:project ./WebApi/WebApi.csproj
 
 var builder = DistributedApplication.CreateBuilder(args);
-
-// Add Azure Container Apps environment for deployment
 builder.AddAzureContainerAppEnvironment("aca");
-
-// Add Azure Application Insights for production telemetry
-var appInsights = builder.AddAzureApplicationInsights("appInsights");
 
 // Use Azure PostgreSQL Flexible Server (runs as container locally)
 var pgServer = builder.AddAzurePostgresFlexibleServer("pg")
@@ -26,14 +21,22 @@ builder.AddDbGate("dbgate")
 
 var api = builder.AddProject<Projects.WebApi>("api")
     .WithReference(postgres)
-    .WithReference(appInsights)
     .WaitFor(postgres)
     .WithExternalHttpEndpoints();
 
 var frontend = builder.AddViteApp("frontend", "./frontend")
     .WithReference(api)
-    .WithReference(appInsights)
     .WithOtlpExporter()
     .WithExternalHttpEndpoints();
+
+// this guard ensures Application Insights is only added in publish mode
+// (when deploying to production)
+if (builder.ExecutionContext.IsPublishMode)
+{
+    // Add Azure Application Insights for production telemetry
+    var appInsights = builder.AddAzureApplicationInsights("appInsights");
+    api.WithReference(appInsights);
+    frontend.WithReference(appInsights);
+}
 
 builder.Build().Run();
